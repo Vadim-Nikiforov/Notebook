@@ -9,4 +9,12 @@
     <string name="remember">Запомнить</string>
     <string name="preservation">сохранить</string>
     <string name="new_note">Новая заметка</string>
+    <string name="setting_menu">настройки</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="settings">Settings</string>
+    <string name="favorite">Favorite</string>
+    <string name="main">Main</string>
+    <string name="fragment_navigation">Заметки Замечены</string>
+
 </resources>
