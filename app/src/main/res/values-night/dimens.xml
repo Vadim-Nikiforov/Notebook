@@ -2,4 +2,9 @@
 <resources>
     <dimen name="nav_header_height">200dp</dimen>
     <dimen name="nav_header_dimen">42sp</dimen>
+    <dimen name="default_padding">16dp</dimen>
+    <dimen name="button_height">72dp</dimen>
+    <dimen name="note_item_subject_text_size">28sp</dimen>
+    <dimen name="note_item_phone_text_size">22sp</dimen>
+    <dimen name="note_card_radius">16dp</dimen>
 </resources>

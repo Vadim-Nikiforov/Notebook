@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
-
 public class MainActivity extends AppCompatActivity implements NoteListFragment.Contract, EditNoteFragment.Contract {
     private static final String NOTES_LIST_FRAGMENT_TAG = "NOTES_LIST_FRAGMENT_TAG";
     private boolean isTwoPanelMode = false;
@@ -48,43 +47,6 @@ public class MainActivity extends AppCompatActivity implements NoteListFragment.
         toggle.syncState();
     }
 
-    private void showNoteList() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.fragment_container, new NoteListFragment(), NOTES_LIST_FRAGMENT_TAG)
-                .commit();
-    }
-
-    private void showEditNote() {
-        showEditNote(null);
-    }
-
-    private void showEditNote(@Nullable NoteEntity note) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if (!isTwoPanelMode) {
-            transaction.addToBackStack(null);
-        }
-        transaction.replace(isTwoPanelMode ? R.id.option_fragment_container : R.id.fragment_container, EditNoteFragment.newInstance(note)).commit();
-    }
-
-    @Override
-    public void onCreateNote() {
-        showEditNote();
-    }
-
-    @Override
-    public void editNote(NoteEntity note) {
-        showEditNote(note);
-    }
-
-    @Override
-    public void saveNote(NoteEntity note) {
-        getSupportFragmentManager().popBackStack();
-        NoteListFragment noteListFragment = (NoteListFragment) getSupportFragmentManager().findFragmentByTag(NOTES_LIST_FRAGMENT_TAG);
-        noteListFragment.addNote(note);
-    }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
@@ -101,5 +63,48 @@ public class MainActivity extends AppCompatActivity implements NoteListFragment.
                 break;
         }
         return true;
+    }
+
+    private void showNoteList() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.fragment_container, new NoteListFragment(), NOTES_LIST_FRAGMENT_TAG)
+                .commit();
+    }
+
+    private void showEditNote() {
+        showEditNote(null);
+    }
+
+    private void showEditNote(@Nullable NoteEntity note) {
+        if (!isTwoPanelMode) {
+            setTitle(note == null ? R.string.create_note_title : R.string.edit_note_title);
+        }
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        if (!isTwoPanelMode) {
+            transaction.addToBackStack(null);
+        }
+        transaction
+                .add(isTwoPanelMode ? R.id.option_fragment_container : R.id.fragment_container, EditNoteFragment.newInstance(note))
+                .commit();
+    }
+
+    @Override
+    public void createNewNote() {
+        showEditNote();
+    }
+
+    @Override
+    public void editNote(NoteEntity note) {
+        showEditNote(note);
+    }
+
+    @Override
+    public void saveNote(NoteEntity note) {
+        setTitle(R.string.app_name);
+        getSupportFragmentManager().popBackStack();
+        NoteListFragment noteListFragment = (NoteListFragment) getSupportFragmentManager().findFragmentByTag(NOTES_LIST_FRAGMENT_TAG);
+        noteListFragment.addNote(note);
     }
 }
