@@ -16,5 +16,8 @@
     <string name="favorite">Favorite</string>
     <string name="main">Main</string>
     <string name="fragment_navigation">Заметки Замечены</string>
+    <string name="update">редактировать</string>
+    <string name="delete">удалить</string>
+    <string name="delete_menu">Удалить</string>
 
 </resources>

@@ -90,13 +90,14 @@ public class MainActivity extends AppCompatActivity implements NoteListFragment.
                 .commit();
     }
 
+
     @Override
     public void createNewNote() {
         showEditNote();
     }
 
     @Override
-    public void editNote(NoteEntity note) {
+    public void updateNote(NoteEntity note) {
         showEditNote(note);
     }
 

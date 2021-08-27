@@ -33,7 +33,7 @@ public class NoteListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         adapter = new NotesAdapter();
-        adapter.setOnItemClickListener(getContract()::editNote);
+        adapter.setOnItemClickListener(getContract()::updateNote);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
         renderList(noteList);
@@ -58,6 +58,10 @@ public class NoteListFragment extends Fragment {
         renderList(noteList);
     }
 
+    public void deleteNote() {
+        renderList(noteList);
+    }
+
     @Nullable
     private NoteEntity findNoteWithId(String id) {
         for (NoteEntity note : noteList) {
@@ -78,6 +82,6 @@ public class NoteListFragment extends Fragment {
 
     interface Contract {
         void createNewNote();
-        void editNote(NoteEntity note);
+        void updateNote(NoteEntity note);
     }
 }
