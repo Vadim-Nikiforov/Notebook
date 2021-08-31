@@ -19,6 +19,10 @@ public class NoteEntity implements Serializable {
         this.phone = phone;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public static String generateNewId() {
         return UUID.randomUUID().toString();
     }
