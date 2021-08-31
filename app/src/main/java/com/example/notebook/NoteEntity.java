@@ -23,22 +23,6 @@ public class NoteEntity implements Serializable {
         return id;
     }
 
-    public String getSubject() {
-        return subject;
-    }
-
-    public long getCreationDate() {
-        return creationDate;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
     public static String generateNewId() {
         return UUID.randomUUID().toString();
     }

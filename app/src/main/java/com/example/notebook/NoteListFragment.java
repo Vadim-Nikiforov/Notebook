@@ -58,10 +58,6 @@ public class NoteListFragment extends Fragment {
         renderList(noteList);
     }
 
-    public void deleteNote() {
-        renderList(noteList);
-    }
-
     @Nullable
     private NoteEntity findNoteWithId(String id) {
         for (NoteEntity note : noteList) {
@@ -82,6 +78,7 @@ public class NoteListFragment extends Fragment {
 
     interface Contract {
         void createNewNote();
+
         void updateNote(NoteEntity note);
     }
 }
