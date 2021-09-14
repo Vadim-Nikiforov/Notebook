@@ -1,56 +1,70 @@
 package com.example.notebook;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.os.Bundle;
+import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity implements NoteListFragment.Contract, EditNoteFragment.Contract {
-    private static final String NOTES_LIST_FRAGMENT_TAG = "NOTES_LIST_FRAGMENT_TAG";
-    private boolean isTwoPanelMode = false;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.google.android.material.navigation.NavigationView;
+
+public class MainActivity extends AppCompatActivity {
+
+    private Navigation navigation;
+    private Publisher publisher = new Publisher();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        isTwoPanelMode = findViewById(R.id.option_fragment_container) != null;
-        showNoteList();
+        navigation = new Navigation(getSupportFragmentManager());
+        initToolbar();
+        getNavigation().addFragment(NoteListFragment.newInstance(), false);
+
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        final DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                return false;
+            }
+        });
+
+        toggle.syncState();
+
     }
 
-    private void showNoteList() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.fragment_container, new NoteListFragment(), NOTES_LIST_FRAGMENT_TAG)
-                .commit();
-    }
-
-    private void showEditNote() {
-        showEditNote(null);
-    }
-
-    private void showEditNote(@Nullable NoteEntity note) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if (!isTwoPanelMode) {
-            transaction.addToBackStack(null);
-        }
-        transaction.replace(isTwoPanelMode ? R.id.option_fragment_container : R.id.fragment_container, EditNoteFragment.newInstance(note)).commit();
+    private void initToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
     }
 
     @Override
-    public void onCreateNote() {
-        showEditNote();
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
-    @Override
-    public void editNote(NoteEntity note) {
-        showEditNote(note);
+    public Navigation getNavigation() {
+        return navigation;
     }
 
-    @Override
-    public void saveNote(NoteEntity note) {
-        getSupportFragmentManager().popBackStack();
-        NoteListFragment noteListFragment = (NoteListFragment) getSupportFragmentManager().findFragmentByTag(NOTES_LIST_FRAGMENT_TAG);
-        noteListFragment.addNote(note);
+    public Publisher getPublisher() {
+        return publisher;
     }
 }
