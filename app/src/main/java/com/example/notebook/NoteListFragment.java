@@ -1,5 +1,6 @@
 package com.example.notebook;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -160,9 +161,20 @@ public class NoteListFragment extends Fragment {
                 });
                 return true;
             case R.id.action_delete:
-                int deletePosition = adapter.getMenuPosition();
-                data.deleteNoteData(deletePosition);
-                adapter.notifyItemRemoved(deletePosition);
+                new AlertDialog.Builder(getContext()).setTitle(R.string.alert_dialog_title)
+                        .setMessage(R.string.alert_dialog_message)
+                        .setCancelable(true)
+                        .setPositiveButton(R.string.yes, (d, i) -> {
+                            Toast.makeText( getContext() , "Удалено", Toast.LENGTH_SHORT).show();
+                            int deletePosition = adapter.getMenuPosition();
+                            data.deleteNoteData(deletePosition);
+                            adapter.notifyItemRemoved(deletePosition);
+                        })
+                        .setNegativeButton(R.string.no, (d, i) -> {
+                            Toast.makeText( getContext() , "Не удалено", Toast.LENGTH_SHORT).show();
+                        })
+                        .show();
+
                 return true;
             case R.id.action_clear:
                 data.clearNoteData();

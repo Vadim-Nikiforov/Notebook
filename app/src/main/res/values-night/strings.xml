@@ -12,4 +12,8 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="sign_out">Выйти</string>
     <string name="continue_">Продолжить</string>
+    <string name="alert_dialog_title">Удалить навсегда?</string>
+    <string name="alert_dialog_message">Вы не сможете восстановить эту запись после удаления.</string>
+    <string name="yes">да</string>
+    <string name="no">нет</string>
 </resources>
