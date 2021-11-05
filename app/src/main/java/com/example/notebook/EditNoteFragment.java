@@ -2,88 +2,133 @@ package com.example.notebook;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.DatePicker;
 
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.textfield.TextInputEditText;
+
+import java.util.Calendar;
+import java.util.Date;
 
 public class EditNoteFragment extends Fragment {
-    private static final String NOTE_EXTRA_KEY = "NOTE_EXTRA_KEY";
 
-    private Button saveButton;
-    private EditText subjectEditText;
-    private EditText phoneEditText;
-    private EditText textEditText;
+    private static final String ARG_CARD_DATA = "Param_CardData";
 
-    @Nullable
-    private NoteEntity note = null;
+    private NoteEntity noteEntity;      // Данные по карточке
+    private Publisher publisher;    // Паблишер, с его помощью обмениваемся данными
 
-    public static EditNoteFragment newInstance(@Nullable NoteEntity note) {
+    private TextInputEditText title;
+    private TextInputEditText description;
+    private DatePicker datePicker;
+
+    // Для редактирования данных
+    public static EditNoteFragment newInstance(NoteEntity noteEntity) {
         EditNoteFragment fragment = new EditNoteFragment();
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(NOTE_EXTRA_KEY, note);
-        fragment.setArguments(bundle);
+        Bundle args = new Bundle();
+        args.putParcelable(ARG_CARD_DATA, noteEntity);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    // Для добавления новых данных
+    public static EditNoteFragment newInstance() {
+        EditNoteFragment fragment = new EditNoteFragment();
         return fragment;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_edit_note, container, false);
-        saveButton = view.findViewById(R.id.save_button);
-        subjectEditText = view.findViewById(R.id.subject_edit_text);
-        phoneEditText = view.findViewById(R.id.phone_edit_text);
-        textEditText = view.findViewById(R.id.text_edit_text);
-        return view;
-    }
-
-    @Override
-    public void onViewCreated(@NotNull View view, @Nullable Bundle savedInstanceState) {
-        note = (NoteEntity) getArguments().getSerializable(NOTE_EXTRA_KEY);
-        getActivity().setTitle(note == null ? R.string.create_note_title : R.string.edit_note_title);
-        fillNote(note);
-        saveButton.setOnClickListener(v -> {
-            getContract().saveNote(getHerNote());
-        });
-    }
-
-    private void fillNote(NoteEntity note) {
-        if (note == null) return;
-        subjectEditText.setText(note.subject);
-        textEditText.setText(note.text);
-        phoneEditText.setText(note.phone);
-    }
-
-    private NoteEntity getHerNote() {
-        return new NoteEntity(
-                note == null ? NoteEntity.generateNewId() : note.id,
-                subjectEditText.getText().toString(),
-                note == null ? NoteEntity.getCurrentDate() : note.creationDate,
-                textEditText.getText().toString(),
-                phoneEditText.getText().toString()
-        );
-    }
-
-    @Override
-    public void onAttach(@NonNull @NotNull Context context) {
-        super.onAttach(context);
-        if (!(context instanceof Contract)) {
-            throw new RuntimeException("Activity must implement Contract");
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            noteEntity = getArguments().getParcelable(ARG_CARD_DATA);
         }
     }
 
-    private Contract getContract() {
-        return (Contract) getActivity();
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        MainActivity activity = (MainActivity) context;
+        publisher = activity.getPublisher();
     }
 
-    interface Contract {
-        void saveNote(NoteEntity note);
+    @Override
+    public void onDetach() {
+        publisher = null;
+        super.onDetach();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_note, container, false);
+        initView(view);
+        // если cardData пустая, то это добавление
+        if (noteEntity != null) {
+            populateView();
+        }
+        return view;
+    }
+
+    // Здесь соберем данные из views
+    @Override
+    public void onStop() {
+        super.onStop();
+        noteEntity = collectCardData();
+    }
+
+    // Здесь передадим данные в паблишер
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        publisher.notifySingle(noteEntity);
+    }
+
+    private NoteEntity collectCardData() {
+        String title = this.title.getText().toString();
+        String description = this.description.getText().toString();
+        Date date = getDateFromDatePicker();
+        if (noteEntity != null) {
+            NoteEntity answer;
+            answer = new NoteEntity(title, description, noteEntity.isLike(), date);
+            answer.setId(noteEntity.getId());
+            return answer;
+        } else {
+            return new NoteEntity(title, description, false, date);
+        }
+    }
+
+    // Получение из DatePicker
+    private Date getDateFromDatePicker() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, this.datePicker.getYear());
+        cal.set(Calendar.MONTH, this.datePicker.getMonth());
+        cal.set(Calendar.DAY_OF_MONTH, this.datePicker.getDayOfMonth());
+        return cal.getTime();
+    }
+
+    private void initView(View view) {
+        title = view.findViewById(R.id.inputTitle);
+        description = view.findViewById(R.id.inputDescription);
+        datePicker = view.findViewById(R.id.inputDate);
+    }
+
+    private void populateView() {
+        title.setText(noteEntity.getTitle());
+        description.setText(noteEntity.getDescription());
+        initDatePicker(noteEntity.getDate());
+    }
+
+    // Установка даты в DatePicker
+    private void initDatePicker(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        this.datePicker.init(calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH),
+                null);
     }
 }

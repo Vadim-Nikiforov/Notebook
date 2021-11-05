@@ -1,29 +1,77 @@
 package com.example.notebook;
 
-import java.io.Serializable;
-import java.util.Calendar;
-import java.util.UUID;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class NoteEntity implements Serializable {
-    public final String id;
-    public final String subject;
-    public final long creationDate;
-    public final String text;
-    public final String phone;
+import java.util.Date;
 
-    public NoteEntity(String id, String subject, long date, String text, String phone) {
+public class NoteEntity implements Parcelable {
+    private String id;          // Идентификатор
+    private String title;       // заголовок
+    private String description; // описание
+    private boolean like;       // флажок
+    private Date date;          // Дата
+
+    public NoteEntity(String title, String description, boolean like, Date date){
+        this.title = title;
+        this.description=description;
+        this.like=like;
+        this.date = date;
+    }
+
+    protected NoteEntity(Parcel in) {
+        title = in.readString();
+        description = in.readString();
+        like = in.readByte() != 0;
+        date = new Date(in.readLong());
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(title);
+        dest.writeString(description);
+        dest.writeByte((byte) (like ? 1 : 0));
+        dest.writeLong(date.getTime());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<NoteEntity> CREATOR = new Creator<NoteEntity>() {
+        @Override
+        public NoteEntity createFromParcel(Parcel in) {
+            return new NoteEntity(in);
+        }
+
+        @Override
+        public NoteEntity[] newArray(int size) {
+            return new NoteEntity[size];
+        }
+    };
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isLike() {
+        return like;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
         this.id = id;
-        this.subject = subject;
-        this.creationDate = date;
-        this.text = text;
-        this.phone = phone;
-    }
-
-    public static String generateNewId() {
-        return UUID.randomUUID().toString();
-    }
-
-    public static long getCurrentDate() {
-        return Calendar.getInstance().getTimeInMillis();
     }
 }
